@@ -19,6 +19,7 @@ import {
 } from "#/utils/query-client-getters";
 import { queryClient } from "#/query-client-config";
 import { I18nKey } from "#/i18n/declaration";
+import { amountIsValid } from "#/utils/amount-is-valid";
 
 function TempChip({
   children,
@@ -191,13 +192,53 @@ function AddCreditsModal({ onClose }: AddCreditsModalProps) {
   const { t } = useTranslation();
   const { mutate: addBalance } = useCreateStripeCheckoutSession();
 
+  const [inputValue, setInputValue] = React.useState("");
+  const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
+
+  const getErrorMessage = (value: string): string | null => {
+    if (!value.trim()) return null;
+
+    const numValue = parseInt(value, 10);
+    if (Number.isNaN(numValue)) {
+      return t(I18nKey.PAYMENT$ERROR_INVALID_NUMBER);
+    }
+    if (numValue < 0) {
+      return t(I18nKey.PAYMENT$ERROR_NEGATIVE_AMOUNT);
+    }
+    if (numValue < 10) {
+      return t(I18nKey.PAYMENT$ERROR_MINIMUM_AMOUNT);
+    }
+    if (numValue > 25000) {
+      return t(I18nKey.PAYMENT$ERROR_MAXIMUM_AMOUNT);
+    }
+    if (numValue !== parseFloat(value)) {
+      return t(I18nKey.PAYMENT$ERROR_MUST_BE_WHOLE_NUMBER);
+    }
+    return null;
+  };
+
   const formAction = (formData: FormData) => {
     const amount = formData.get("amount")?.toString();
 
     if (amount?.trim()) {
+      if (!amountIsValid(amount)) {
+        const error = getErrorMessage(amount);
+        setErrorMessage(error || "Invalid amount");
+        return;
+      }
+
       const intValue = parseInt(amount, 10);
+
       addBalance({ amount: intValue }, { onSuccess: onClose });
+
+      setErrorMessage(null);
     }
+  };
+
+  const handleAmountInputChange = (value: string) => {
+    setInputValue(value);
+    // Clear error message when user starts typing again
+    setErrorMessage(null);
   };
 
   return (
@@ -205,7 +246,8 @@ function AddCreditsModal({ onClose }: AddCreditsModalProps) {
       <form
         data-testid="add-credits-form"
         action={formAction}
-        className="w-sm rounded-xl bg-[#171717] flex flex-col p-6 gap-6"
+        noValidate
+        className="w-md rounded-xl bg-[#171717] flex flex-col p-6 gap-6"
       >
         <div className="flex flex-col gap-2">
           <h3 className="text-xl font-semibold">
@@ -216,7 +258,18 @@ function AddCreditsModal({ onClose }: AddCreditsModalProps) {
             name="amount"
             type="number"
             className="text-lg bg-[#27272A] p-2"
+            placeholder={t(I18nKey.PAYMENT$SPECIFY_AMOUNT_USD)}
+            min={10}
+            max={25000}
+            step={1}
+            value={inputValue}
+            onChange={(e) => handleAmountInputChange(e.target.value)}
           />
+          {errorMessage && (
+            <p className="text-red-500 text-sm mt-1" data-testid="amount-error">
+              {errorMessage}
+            </p>
+          )}
         </div>
 
         <div className="flex gap-2">
