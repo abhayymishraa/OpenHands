@@ -3,18 +3,14 @@ import { GetConfigResponse } from "#/api/option-service/option.types";
 import { Conversation, ResultSet } from "#/api/open-hands.types";
 import { DEFAULT_SETTINGS } from "#/services/settings";
 import { STRIPE_BILLING_HANDLERS } from "./billing-handlers";
-import { Provider } from "#/types/settings";
-import {
-  ApiSettings,
-  PostApiSettings,
-} from "#/api/settings-service/settings.types";
+import { Provider, Settings } from "#/types/settings";
 import { FILE_SERVICE_HANDLERS } from "./file-service-handlers";
 import { GitUser } from "#/types/git";
 import { TASK_SUGGESTIONS_HANDLERS } from "./task-suggestions-handlers";
 import { SECRETS_HANDLERS } from "./secrets-handlers";
 import { GIT_REPOSITORY_HANDLERS } from "./git-repository-handlers";
 
-export const MOCK_DEFAULT_USER_SETTINGS: ApiSettings | PostApiSettings = {
+export const MOCK_DEFAULT_USER_SETTINGS: Settings = {
   llm_model: DEFAULT_SETTINGS.llm_model,
   llm_base_url: DEFAULT_SETTINGS.llm_base_url,
   llm_api_key: null,
@@ -38,7 +34,7 @@ export const MOCK_DEFAULT_USER_SETTINGS: ApiSettings | PostApiSettings = {
 };
 
 const MOCK_USER_PREFERENCES: {
-  settings: ApiSettings | PostApiSettings | null;
+  settings: Settings | null;
 } = {
   settings: null,
 };
@@ -209,7 +205,7 @@ export const handlers = [
       // Persist new values over current/mock defaults
       MOCK_USER_PREFERENCES.settings = {
         ...current,
-        ...(body as Partial<ApiSettings>),
+        ...(body as Partial<Settings>),
       };
       return HttpResponse.json(null, { status: 200 });
     }

@@ -8,7 +8,6 @@ import { useIsAuthed } from "./use-is-authed";
 const getSettingsQueryFn = async (): Promise<Settings> => {
   const settings = await SettingsService.getSettings();
 
-  // Apply defaults for optional fields
   return {
     ...settings,
     condenser_max_size:

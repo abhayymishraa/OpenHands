@@ -2,12 +2,11 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { usePostHog } from "posthog-js/react";
 import { DEFAULT_SETTINGS } from "#/services/settings";
 import SettingsService from "#/api/settings-service/settings-service.api";
-import { PostSettings } from "#/types/settings";
+import { PostSettings, Settings } from "#/types/settings";
 import { useSettings } from "../query/use-settings";
 
 const saveSettingsMutationFn = async (settings: Partial<PostSettings>) => {
-  // Apply defaults and cleanup for optional fields
-  const settingsToSave = {
+  const settingsToSave: Partial<Settings> = {
     ...settings,
     agent: settings.agent || DEFAULT_SETTINGS.agent,
     language: settings.language || DEFAULT_SETTINGS.language,
