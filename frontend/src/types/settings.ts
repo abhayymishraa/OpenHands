@@ -66,5 +66,3 @@ export type Settings = {
   git_user_email?: string;
   v1_enabled?: boolean;
 };
-
-export type PostSettings = Settings;

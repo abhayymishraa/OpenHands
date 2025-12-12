@@ -1,5 +1,5 @@
 import { openHands } from "../open-hands-axios";
-import { Settings, PostSettings } from "#/types/settings";
+import { Settings } from "#/types/settings";
 
 /**
  * Settings service for managing application settings
@@ -17,7 +17,7 @@ class SettingsService {
    * Save the settings to the server. Only valid settings are saved.
    * @param settings - the settings to save
    */
-  static async saveSettings(settings: Partial<PostSettings>): Promise<boolean> {
+  static async saveSettings(settings: Partial<Settings>): Promise<boolean> {
     const data = await openHands.post("/api/settings", settings);
     return data.status === 200;
   }

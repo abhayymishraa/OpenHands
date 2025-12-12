@@ -2,10 +2,10 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { usePostHog } from "posthog-js/react";
 import { DEFAULT_SETTINGS } from "#/services/settings";
 import SettingsService from "#/api/settings-service/settings-service.api";
-import { PostSettings, Settings } from "#/types/settings";
+import { Settings } from "#/types/settings";
 import { useSettings } from "../query/use-settings";
 
-const saveSettingsMutationFn = async (settings: Partial<PostSettings>) => {
+const saveSettingsMutationFn = async (settings: Partial<Settings>) => {
   const settingsToSave: Partial<Settings> = {
     ...settings,
     agent: settings.agent || DEFAULT_SETTINGS.agent,
@@ -32,7 +32,7 @@ export const useSaveSettings = () => {
   const { data: currentSettings } = useSettings();
 
   return useMutation({
-    mutationFn: async (settings: Partial<PostSettings>) => {
+    mutationFn: async (settings: Partial<Settings>) => {
       const newSettings = { ...currentSettings, ...settings };
 
       // Track MCP configuration changes
