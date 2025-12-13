@@ -1,4 +1,4 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { openHands } from "#/api/open-hands-axios";
 import { useConfig } from "./use-config";
 
@@ -8,7 +8,7 @@ export interface LlmApiKeyResponse {
   key: string | null;
 }
 
-export function useLlmApiKey() {
+export function useLlmApiKeyQuery() {
   const { data: config } = useConfig();
 
   return useQuery({
@@ -24,19 +24,5 @@ export function useLlmApiKey() {
   });
 }
 
-export function useRefreshLlmApiKey() {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async () => {
-      const { data } = await openHands.post<LlmApiKeyResponse>(
-        "/api/keys/llm/byor/refresh",
-      );
-      return data;
-    },
-    onSuccess: () => {
-      // Invalidate the LLM API key query to trigger a refetch
-      queryClient.invalidateQueries({ queryKey: [LLM_API_KEY_QUERY_KEY] });
-    },
-  });
-}
+// Legacy export for backward compatibility - can be removed after updating all imports
+export const useLlmApiKey = useLlmApiKeyQuery;
