@@ -10,9 +10,7 @@ interface AcceptTosVariables {
 }
 
 interface AcceptTosResponse {
-  data: {
-    redirect_url?: string;
-  };
+  redirect_url?: string;
 }
 
 export const useAcceptTos = () => {
