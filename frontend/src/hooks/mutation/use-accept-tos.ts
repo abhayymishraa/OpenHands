@@ -26,9 +26,9 @@ export const useAcceptTos = () => {
       handleCaptureConsent(posthog, true);
 
       // Call the API to record TOS acceptance in the database
-      return openHands.post("/api/accept_tos", {
+      return openHands.post<AcceptTosResponse>("/api/accept_tos", {
         redirect_url: redirectUrl,
-      }) as Promise<AcceptTosResponse>;
+      });
     },
     onSuccess: (response, { redirectUrl }) => {
       // Track user signup completion
