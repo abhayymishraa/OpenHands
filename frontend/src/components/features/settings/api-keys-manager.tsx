@@ -13,7 +13,7 @@ import { CreateApiKeyModal } from "./create-api-key-modal";
 import { DeleteApiKeyModal } from "./delete-api-key-modal";
 import { NewApiKeyModal } from "./new-api-key-modal";
 import { useApiKeys } from "#/hooks/query/use-api-keys";
-import { useLlmApiKeyQuery } from "#/hooks/query/use-llm-api-key-query";
+import { useLlmApiKey } from "#/hooks/query/use-llm-api-key";
 import { useRefreshLlmApiKey } from "#/hooks/mutation/use-refresh-llm-api-key";
 
 interface LlmApiKeyManagerProps {
@@ -206,7 +206,7 @@ function ApiKeysTable({ apiKeys, isLoading, onDeleteKey }: ApiKeysTableProps) {
 export function ApiKeysManager() {
   const { t } = useTranslation();
   const { data: apiKeys = [], isLoading, error } = useApiKeys();
-  const { data: llmApiKey, isLoading: isLoadingLlmKey } = useLlmApiKeyQuery();
+  const { data: llmApiKey, isLoading: isLoadingLlmKey } = useLlmApiKey();
   const refreshLlmApiKey = useRefreshLlmApiKey();
   const [createModalOpen, setCreateModalOpen] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);

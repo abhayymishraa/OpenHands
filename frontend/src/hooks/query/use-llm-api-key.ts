@@ -8,7 +8,7 @@ export interface LlmApiKeyResponse {
   key: string | null;
 }
 
-export function useLlmApiKeyQuery() {
+export function useLlmApiKey() {
   const { data: config } = useConfig();
 
   return useQuery({
@@ -23,6 +23,3 @@ export function useLlmApiKeyQuery() {
     gcTime: 1000 * 60 * 15, // 15 minutes
   });
 }
-
-// Legacy export for backward compatibility - can be removed after updating all imports
-export const useLlmApiKey = useLlmApiKeyQuery;

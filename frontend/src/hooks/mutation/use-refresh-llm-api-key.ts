@@ -3,7 +3,7 @@ import { openHands } from "#/api/open-hands-axios";
 import {
   LLM_API_KEY_QUERY_KEY,
   LlmApiKeyResponse,
-} from "#/hooks/query/use-llm-api-key-query";
+} from "#/hooks/query/use-llm-api-key";
 
 export function useRefreshLlmApiKey() {
   const queryClient = useQueryClient();
