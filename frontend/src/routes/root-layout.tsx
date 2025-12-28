@@ -9,11 +9,9 @@ import {
 import { useTranslation } from "react-i18next";
 import { I18nKey } from "#/i18n/declaration";
 import i18n from "#/i18n";
-import { useGitHubAuthUrl } from "#/hooks/use-github-auth-url";
 import { useIsAuthed } from "#/hooks/query/use-is-authed";
 import { useConfig } from "#/hooks/query/use-config";
 import { Sidebar } from "#/components/features/sidebar/sidebar";
-import { AuthModal } from "#/components/features/waitlist/auth-modal";
 import { ReauthModal } from "#/components/features/waitlist/reauth-modal";
 import { EmailVerificationModal } from "#/components/features/waitlist/email-verification-modal";
 import { AnalyticsConsentFormModal } from "#/components/features/analytics/analytics-consent-form-modal";
@@ -82,23 +80,9 @@ export default function MainApp() {
     isError: isAuthError,
   } = useIsAuthed();
 
-  // Always call the hook, but we'll only use the result when not on TOS page
-  const gitHubAuthUrl = useGitHubAuthUrl({
-    appMode: config.data?.APP_MODE || null,
-    gitHubClientId: config.data?.GITHUB_CLIENT_ID || null,
-    authUrl: config.data?.AUTH_URL,
-  });
-
-  // When on TOS page, we don't use the GitHub auth URL
-  const effectiveGitHubAuthUrl = isOnTosPage ? null : gitHubAuthUrl;
-
   const [consentFormIsOpen, setConsentFormIsOpen] = React.useState(false);
-  const {
-    emailVerificationModalOpen,
-    setEmailVerificationModalOpen,
-    emailVerified,
-    hasDuplicatedEmail,
-  } = useEmailVerification();
+  const { emailVerificationModalOpen, setEmailVerificationModalOpen } =
+    useEmailVerification();
 
   // Auto-login if login method is stored in local storage
   useAutoLogin();
@@ -197,13 +181,25 @@ export default function MainApp() {
     setLoginMethodExists(checkLoginMethodExists());
   }, [isAuthed, checkLoginMethodExists]);
 
-  const renderAuthModal =
+  // Determine if we should redirect to login page
+  const shouldRedirectToLogin =
     !isAuthed &&
     !isAuthError &&
     !isFetchingAuth &&
     !isOnTosPage &&
     config.data?.APP_MODE === "saas" &&
-    !loginMethodExists; // Don't show auth modal if login method exists in local storage
+    !loginMethodExists;
+
+  // Redirect to login page
+  React.useEffect(() => {
+    if (shouldRedirectToLogin) {
+      const returnTo = pathname !== "/" ? pathname : "";
+      const loginUrl = returnTo
+        ? `/login?returnTo=${encodeURIComponent(returnTo)}`
+        : "/login";
+      navigate(loginUrl, { replace: true });
+    }
+  }, [shouldRedirectToLogin, pathname, navigate]);
 
   const renderReAuthModal =
     !isAuthed &&
@@ -238,16 +234,6 @@ export default function MainApp() {
         </div>
       </div>
 
-      {renderAuthModal && (
-        <AuthModal
-          githubAuthUrl={effectiveGitHubAuthUrl}
-          appMode={config.data?.APP_MODE}
-          providersConfigured={config.data?.PROVIDERS_CONFIGURED}
-          authUrl={config.data?.AUTH_URL}
-          emailVerified={emailVerified}
-          hasDuplicatedEmail={hasDuplicatedEmail}
-        />
-      )}
       {renderReAuthModal && <ReauthModal />}
       {emailVerificationModalOpen && (
         <EmailVerificationModal
