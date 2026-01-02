@@ -32,6 +32,7 @@ import { LOCAL_STORAGE_KEYS } from "#/utils/local-storage";
 import { EmailVerificationGuard } from "#/components/features/guards/email-verification-guard";
 import { MaintenanceBanner } from "#/components/features/maintenance/maintenance-banner";
 import { cn, isMobileDevice } from "#/utils/utils";
+import { ModalRoot } from "#/components/shared/modals/modal-root";
 
 export function ErrorBoundary() {
   const error = useRouteError();
@@ -269,6 +270,7 @@ export default function MainApp() {
       {config.data?.FEATURE_FLAGS.ENABLE_BILLING &&
         config.data?.APP_MODE === "saas" &&
         settings?.is_new_user && <SetupPaymentModal />}
+      <ModalRoot />
     </div>
   );
 }

@@ -17,6 +17,7 @@ import {
 } from "#/utils/custom-toast-handlers";
 import { I18nKey } from "#/i18n/declaration";
 import { useEventStore } from "#/stores/use-event-store";
+import { useModalStore } from "#/stores/modal-store";
 
 import { useActiveConversation } from "./query/use-active-conversation";
 import { useDownloadConversation } from "./use-download-conversation";
@@ -49,14 +50,11 @@ export function useConversationNameContextMenu({
   const { mutate: updatePublicFlag } = useUpdateConversationPublicFlag();
   const { data: conversation } = useActiveConversation();
   const metrics = useMetricsStore();
+  const { openModal } = useModalStore();
 
   const [metricsModalVisible, setMetricsModalVisible] = React.useState(false);
   const [systemModalVisible, setSystemModalVisible] = React.useState(false);
   const [skillsModalVisible, setSkillsModalVisible] = React.useState(false);
-  const [confirmDeleteModalVisible, setConfirmDeleteModalVisible] =
-    React.useState(false);
-  const [confirmStopModalVisible, setConfirmStopModalVisible] =
-    React.useState(false);
   const { mutateAsync: downloadConversation } = useDownloadConversation();
 
   const systemMessage: SystemMessageForModal | null =
@@ -65,38 +63,38 @@ export function useConversationNameContextMenu({
   const handleDelete = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
     event.stopPropagation();
-    setConfirmDeleteModalVisible(true);
+    if (conversationId) {
+      openModal("confirm-delete", {
+        conversationId,
+        conversationTitle: conversation?.title,
+        onConfirm: () => {
+          deleteConversation(
+            { conversationId },
+            {
+              onSuccess: () => {
+                if (conversationId === currentConversationId) {
+                  navigate("/");
+                }
+              },
+            },
+          );
+        },
+      });
+    }
     onContextMenuToggle?.(false);
   };
 
   const handleStop = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
     event.stopPropagation();
-    setConfirmStopModalVisible(true);
-    onContextMenuToggle?.(false);
-  };
-
-  const handleConfirmDelete = () => {
     if (conversationId) {
-      deleteConversation(
-        { conversationId },
-        {
-          onSuccess: () => {
-            if (conversationId === currentConversationId) {
-              navigate("/");
-            }
-          },
+      openModal("confirm-stop", {
+        onConfirm: () => {
+          stopConversation({ conversationId });
         },
-      );
+      });
     }
-    setConfirmDeleteModalVisible(false);
-  };
-
-  const handleConfirmStop = () => {
-    if (conversationId) {
-      stopConversation({ conversationId });
-    }
-    setConfirmStopModalVisible(false);
+    onContextMenuToggle?.(false);
   };
 
   const handleEdit = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -229,20 +227,14 @@ export function useConversationNameContextMenu({
     handleShowSkills,
     handleTogglePublic,
     handleCopyShareLink,
-    handleConfirmDelete,
-    handleConfirmStop,
 
-    // Modal states
+    // Modal states (non-centralized modals only)
     metricsModalVisible,
     setMetricsModalVisible,
     systemModalVisible,
     setSystemModalVisible,
     skillsModalVisible,
     setSkillsModalVisible,
-    confirmDeleteModalVisible,
-    setConfirmDeleteModalVisible,
-    confirmStopModalVisible,
-    setConfirmStopModalVisible,
 
     // Data
     metrics,
