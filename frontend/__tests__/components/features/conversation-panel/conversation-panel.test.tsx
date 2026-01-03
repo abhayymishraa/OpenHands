@@ -1,4 +1,4 @@
-import { screen, waitFor, within } from "@testing-library/react";
+import { screen, waitFor, within, act } from "@testing-library/react";
 import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import userEvent from "@testing-library/user-event";
 import { createRoutesStub } from "react-router";
@@ -7,6 +7,8 @@ import { renderWithProviders } from "test-utils";
 import { ConversationPanel } from "#/components/features/conversation-panel/conversation-panel";
 import ConversationService from "#/api/conversation-service/conversation-service.api";
 import { Conversation } from "#/api/open-hands.types";
+import { ModalRoot } from "#/components/shared/modals/modal-root";
+import { useModalStore } from "#/stores/modal-store";
 
 // Mock the unified stop conversation hook
 const mockStopConversationMutate = vi.fn();
@@ -27,7 +29,12 @@ describe("ConversationPanel", () => {
   const onCloseMock = vi.fn();
   const RouterStub = createRoutesStub([
     {
-      Component: () => <ConversationPanel onClose={onCloseMock} />,
+      Component: () => (
+        <>
+          <ConversationPanel onClose={onCloseMock} />
+          <ModalRoot />
+        </>
+      ),
       path: "/",
     },
     {
@@ -94,6 +101,9 @@ describe("ConversationPanel", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockStopConversationMutate.mockClear();
+    act(() => {
+      useModalStore.getState().closeModal();
+    });
     // Setup default mock for getUserConversations
     vi.spyOn(ConversationService, "getUserConversations").mockResolvedValue({
       results: [...mockConversations],
